@@ -29,10 +29,13 @@ button:hover { box-shadow:0 0 10px #00ffffaa;}
 </div>
 
 <script>
-// Local testing: connect to localhost
-const ws = new WebSocket(`ws://${window.location.hostname}:${window.location.port || 10000}`);
-
 const chat = document.getElementById("chat");
+
+// Automatically select WS URL based on environment
+const LOCAL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+const PORT = 10000;
+const wsUrl = LOCAL ? `ws://localhost:${PORT}` : `wss://${window.location.hostname}`;
+const ws = new WebSocket(wsUrl);
 
 ws.onmessage = e => {
   const data = JSON.parse(e.data);
@@ -44,10 +47,9 @@ ws.onmessage = e => {
 function send() {
   const username = document.getElementById("username").value.trim() || "Anon";
   const message = document.getElementById("msg").value.trim();
-  if (message !== "") {
-    ws.send(JSON.stringify({ user: username, message: message }));
-    document.getElementById("msg").value = "";
-  }
+  if (!message) return;
+  ws.send(JSON.stringify({ user: username, message }));
+  document.getElementById("msg").value = "";
 }
 </script>
 </body>
