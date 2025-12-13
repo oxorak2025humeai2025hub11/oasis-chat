@@ -18,23 +18,13 @@ const wss = new WebSocket.Server({ server });
 wss.on('connection', ws => {
   ws.on('message', msg => {
     let data;
-    try {
-      data = JSON.parse(msg); // { user, message }
-    } catch {
-      data = { user: "Anon", message: msg.toString() };
-    }
+    try { data = JSON.parse(msg); } 
+    catch { data = { user: "Anon", message: msg.toString() }; }
 
-    const message = {
-      user: data.user || "Anon",
-      message: data.message,
-      time: Date.now()
-    };
+    const message = { user: data.user || "Anon", message: data.message, time: Date.now() };
 
-    // Broadcast to all connected clients
     wss.clients.forEach(client => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify(message));
-      }
+      if (client.readyState === WebSocket.OPEN) client.send(JSON.stringify(message));
     });
   });
 });
