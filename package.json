@@ -1,0 +1,14 @@
+{
+  "name": "oasis-chat",
+  "version": "1.0.0",
+  "description": "Player Ready One style WebSocket chat server",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "Oxorak",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.14.0"
+  }
+}
