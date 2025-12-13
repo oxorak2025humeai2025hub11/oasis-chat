@@ -1,54 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>OASIS CHAT NODE</title>
+  <meta charset="UTF-8" />
+  <title>OASIS Global Chat</title>
 
-<style>
-body { background: radial-gradient(circle at top, #0a0f2c, #000); font-family: "Orbitron", monospace; color: #00ffff; display:flex; justify-content:center; align-items:center; height:100vh;}
-.console { width:450px; border:2px solid #00ffff; border-radius:14px; padding:14px; box-shadow:0 0 25px #00ffff55; background:rgba(0,0,0,0.75);}
-.title { text-align:center; font-size:18px; letter-spacing:2px; margin-bottom:10px;}
-#chat { height:250px; overflow-y:auto; background:#000; border:1px solid #00ffff44; padding:8px; font-size:13px; white-space:pre-wrap; margin-bottom:10px;}
-.controls { display:flex; gap:6px;}
-input { flex:1; background:#020818; border:1px solid #00ffff88; color:#00ffff; padding:8px; font-family:inherit; outline:none;}
-button { background:linear-gradient(45deg, #00ffff, #0066ff); border:none; color:#000; padding:8px 14px; font-weight:bold; cursor:pointer; border-radius:6px;}
-button:hover { box-shadow:0 0 10px #00ffffaa;}
-</style>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: radial-gradient(circle at top, #0a0f2c, #000);
+      font-family: monospace;
+      color: #00ffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .console {
+      width: 460px;
+      background: rgba(0, 0, 0, 0.8);
+      border: 2px solid #00ffff;
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 0 25px #00ffff55;
+    }
+
+    .title {
+      text-align: center;
+      font-size: 18px;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    #chat {
+      height: 260px;
+      overflow-y: auto;
+      background: #000;
+      border: 1px solid #00ffff44;
+      padding: 8px;
+      font-size: 13px;
+      white-space: pre-wrap;
+      margin-bottom: 10px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 6px;
+    }
+
+    input {
+      flex: 1;
+      background: #020818;
+      border: 1px solid #00ffff88;
+      color: #00ffff;
+      padding: 8px;
+      outline: none;
+    }
+
+    button {
+      background: linear-gradient(45deg, #00ffff, #0066ff);
+      border: none;
+      color: #000;
+      padding: 8px 14px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    button:hover {
+      box-shadow: 0 0 10px #00ffffaa;
+    }
+  </style>
 </head>
 
 <body>
-<div class="console">
-  <div class="title">OASIS GLOBAL CHAT</div>
-  <div id="chat"></div>
 
-  <div class="controls">
-    <input id="username" placeholder="Enter your name…" />
-    <input id="msg" placeholder="Transmit message…" />
-    <button onclick="send()">SEND</button>
+  <div class="console">
+    <div class="title">OASIS GLOBAL CHAT</div>
+
+    <div id="chat"></div>
+
+    <div class="controls">
+      <input id="username" placeholder="Name" />
+      <input id="message" placeholder="Message" />
+      <button onclick="sendMessage()">SEND</button>
+    </div>
   </div>
-</div>
 
-<script>
-// Local testing: connect to localhost
-const ws = new WebSocket(`ws://${window.location.hostname}:${window.location.port || 10000}`);
+  <script>
+    const chat = document.getElementById("chat");
 
-const chat = document.getElementById("chat");
+    // Use same origin WebSocket (works locally + on Render)
+    const protocol = location.protocol === "https:" ? "wss://" : "ws://";
+    const ws = new WebSocket(protocol + location.host);
 
-ws.onmessage = e => {
-  const data = JSON.parse(e.data);
-  const time = new Date(data.time).toLocaleTimeString();
-  chat.textContent += `[${time}] ${data.user}: ${data.message}\n`;
-  chat.scrollTop = chat.scrollHeight;
-};
+    ws.onopen = () => {
+      chat.textContent += "[connected]\n";
+    };
 
-function send() {
-  const username = document.getElementById("username").value.trim() || "Anon";
-  const message = document.getElementById("msg").value.trim();
-  if (message !== "") {
-    ws.send(JSON.stringify({ user: username, message: message }));
-    document.getElementById("msg").value = "";
-  }
-}
-</script>
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      const time = new Date(data.time).toLocaleTimeString();
+      chat.textContent += `[${time}] ${data.user}: ${data.message}\n`;
+      chat.scrollTop = chat.scrollHeight;
+    };
+
+    ws.onerror = () => {
+      chat.textContent += "[connection error]\n";
+    };
+
+    function sendMessage() {
+      const user = document.getElementById("username").value.trim() || "Anon";
+      const message = document.getElementById("message").value.trim();
+
+      if (!message) return;
+
+      ws.send(JSON.stringify({
+        user,
+        message
+      }));
+
+      document.getElementById("message").value = "";
+    }
+  </script>
+
 </body>
 </html>
