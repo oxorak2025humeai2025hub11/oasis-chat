@@ -2,55 +2,121 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>OASIS CHAT NODE</title>
+<title>OASIS CHAT NODE - Typewriter</title>
 
 <style>
-body { background: radial-gradient(circle at top, #0a0f2c, #000); font-family: "Orbitron", monospace; color: #00ffff; display:flex; justify-content:center; align-items:center; height:100vh;}
-.console { width:450px; border:2px solid #00ffff; border-radius:14px; padding:14px; box-shadow:0 0 25px #00ffff55; background:rgba(0,0,0,0.75);}
-.title { text-align:center; font-size:18px; letter-spacing:2px; margin-bottom:10px;}
-#chat { height:250px; overflow-y:auto; background:#000; border:1px solid #00ffff44; padding:8px; font-size:13px; white-space:pre-wrap; margin-bottom:10px;}
-.controls { display:flex; gap:6px;}
-input { flex:1; background:#020818; border:1px solid #00ffff88; color:#00ffff; padding:8px; font-family:inherit; outline:none;}
-button { background:linear-gradient(45deg, #00ffff, #0066ff); border:none; color:#000; padding:8px 14px; font-weight:bold; cursor:pointer; border-radius:6px;}
-button:hover { box-shadow:0 0 10px #00ffffaa;}
+  body {
+    background: radial-gradient(circle at top, #0a0f2c, #000);
+    font-family: "Orbitron", monospace;
+    color: #00ffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .console {
+    width: 450px;
+    border: 2px solid #00ffff;
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: 0 0 25px #00ffff55;
+    background: rgba(0, 0, 0, 0.75);
+  }
+
+  .title {
+    text-align: center;
+    font-size: 18px;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+
+  #chat {
+    height: 250px;
+    overflow-y: auto;
+    background: #000;
+    border: 1px solid #00ffff44;
+    padding: 8px;
+    font-size: 13px;
+    white-space: pre-wrap;
+    margin-bottom: 10px;
+  }
+
+  .controls {
+    display: flex;
+    gap: 6px;
+  }
+
+  input {
+    flex: 1;
+    background: #020818;
+    border: 1px solid #00ffff88;
+    color: #00ffff;
+    padding: 8px;
+    font-family: inherit;
+    outline: none;
+  }
+
+  button {
+    background: linear-gradient(45deg, #00ffff, #0066ff);
+    border: none;
+    color: #000;
+    padding: 8px 14px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+  }
+
+  button:hover {
+    box-shadow: 0 0 10px #00ffffaa;
+  }
 </style>
 </head>
 
 <body>
+
 <div class="console">
   <div class="title">OASIS GLOBAL CHAT</div>
   <div id="chat"></div>
 
   <div class="controls">
-    <input id="username" placeholder="Enter your nameâ€¦" />
-    <input id="msg" placeholder="Transmit messageâ€¦" />
+    <input id="username" placeholder="Enter your name…" />
+    <input id="msg" placeholder="Transmit message…" />
     <button onclick="send()">SEND</button>
   </div>
 </div>
 
 <script>
-const chat = document.getElementById("chat");
+  const ws = new WebSocket("wss://oasis-chat.onrender.com");
+  const chat = document.getElementById("chat");
 
-// Automatically select WS URL based on environment
-const LOCAL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-const PORT = 10000;
-const wsUrl = LOCAL ? `ws://localhost:${PORT}` : `wss://${window.location.hostname}`;
-const ws = new WebSocket(wsUrl);
+  // Function to display messages with typewriter effect
+  function typeWriter(text) {
+    let i = 0;
+    const interval = setInterval(() => {
+      chat.textContent += text[i];
+      i++;
+      chat.scrollTop = chat.scrollHeight;
+      if (i >= text.length) clearInterval(interval);
+    }, 30); // adjust speed here
+  }
 
-ws.onmessage = e => {
-  const data = JSON.parse(e.data);
-  const time = new Date(data.time).toLocaleTimeString();
-  chat.textContent += `[${time}] ${data.user}: ${data.message}\n`;
-  chat.scrollTop = chat.scrollHeight;
-};
+  ws.onmessage = e => {
+    const data = JSON.parse(e.data);
+    const time = new Date(data.time).toLocaleTimeString();
+    const fullText = `[${time}] ${data.user}: ${data.message}\n`;
+    typeWriter(fullText);
+  };
 
-function send() {
-  const username = document.getElementById("username").value.trim() || "Anon";
-  const message = document.getElementById("msg").value.trim();
-  if (!message) return;
-  ws.send(JSON.stringify({ user: username, message }));
-  document.getElementById("msg").value = "";
-}
+  function send() {
+    const username = document.getElementById("username").value.trim() || "Anon";
+    const message = document.getElementById("msg").value.trim();
+    if (message !== "") {
+      ws.send(JSON.stringify({ user: username, message: message }));
+      document.getElementById("msg").value = "";
+    }
+  }
 </script>
+
 </body>
 </html>
