@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Spidy Radio On Chat</title>
+<title>🕷️ Spidy Radio On Chat 🎄</title>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
@@ -18,7 +18,7 @@ body {
   overflow: hidden;
 }
 
-/* Snowflake animation */
+/* Snowfall */
 body::before {
   content: '❄';
   position: absolute;
@@ -30,7 +30,7 @@ body::before {
 }
 @keyframes snow {
   0% { transform: translateY(0) translateX(0); }
-  100% { transform: translateY(110vh) translateX(100px); }
+  100% { transform: translateY(110vh) translateX(120px); }
 }
 
 .console { 
@@ -59,9 +59,18 @@ body::before {
   border: 1px solid #00ffff44; 
   padding: 10px; 
   font-size: 14px; 
-  white-space: pre-wrap; 
   margin-bottom: 12px;
   box-shadow: inset 0 0 10px #ff0000aa, inset 0 0 20px #0066ffaa;
+}
+
+/* Message colors */
+.sent {
+  color: #00ffff;
+  text-shadow: 0 0 6px #00ffff;
+}
+
+.received {
+  color: #ff0000;
 }
 
 .controls { 
@@ -100,37 +109,58 @@ button:hover {
 
 <body>
 <div class="console">
-  <div class="title">🕷️Spidy Radio on Chat🎄</div>
+  <div class="title">🕷️ SPIDY RADIO ON 🎄</div>
+
   <div id="chat"></div>
 
   <div class="controls">
-    <input id="username" placeholder="Enter your hero name…" />
+    <input id="username" placeholder="Hero name…" />
     <input id="msg" placeholder="Transmit message…" />
-    <button onclick="send()">🕸️SEND</button>
+    <button onclick="send()">🕸️ SEND</button>
   </div>
 </div>
 
 <script>
 const chat = document.getElementById("chat");
 
-// Automatically select WS URL based on environment
-const LOCAL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+const LOCAL =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1";
+
 const PORT = 10000;
-const wsUrl = LOCAL ? `ws://localhost:${PORT}` : `wss://${window.location.hostname}`;
+const wsUrl = LOCAL
+  ? `ws://localhost:${PORT}`
+  : `wss://${window.location.hostname}`;
+
 const ws = new WebSocket(wsUrl);
 
 ws.onmessage = e => {
   const data = JSON.parse(e.data);
   const time = new Date(data.time).toLocaleTimeString();
-  chat.textContent += `[${time}] ${data.user}: ${data.message}\n`;
+
+  const myName =
+    document.getElementById("username").value.trim() || "Anon";
+
+  const line = document.createElement("div");
+  line.className = data.user === myName ? "sent" : "received";
+  line.textContent = `[${time}] ${data.user}: ${data.message}`;
+
+  chat.appendChild(line);
   chat.scrollTop = chat.scrollHeight;
 };
 
 function send() {
-  const username = document.getElementById("username").value.trim() || "Anon";
+  const username =
+    document.getElementById("username").value.trim() || "Anon";
   const message = document.getElementById("msg").value.trim();
   if (!message) return;
-  ws.send(JSON.stringify({ user: username, message }));
+
+  ws.send(JSON.stringify({
+    user: username,
+    message: message,
+    time: Date.now()
+  }));
+
   document.getElementById("msg").value = "";
 }
 </script>
