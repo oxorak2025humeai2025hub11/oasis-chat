@@ -20,19 +20,51 @@ body {
 
 /* Snowfall */
 body::before {
-  content: '❄';
+  content: '❄ ❄ ❄ ❄ ❄';
   position: absolute;
   top: -10%;
-  left: 50%;
-  font-size: 2rem;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 1.5rem;
   color: #fff;
-  animation: snow 10s linear infinite;
+  animation: snow 12s linear infinite;
 }
 @keyframes snow {
-  0% { transform: translateY(0) translateX(0); }
-  100% { transform: translateY(110vh) translateX(120px); }
+  0% { transform: translateY(0); }
+  100% { transform: translateY(120vh); }
 }
 
+/* Scene */
+.spidey-scene {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Spider-Man (symbolic) */
+.spidey {
+  font-size: 52px;
+  filter: drop-shadow(0 0 12px #ff0000);
+}
+
+/* Web string */
+.web-string {
+  width: 2px;
+  height: 130px;
+  background: repeating-linear-gradient(
+    to bottom,
+    #ffffff,
+    #ffffff 6px,
+    transparent 6px,
+    transparent 12px
+  );
+  transform-origin: top;
+  animation: web-sway 4s ease-in-out infinite;
+}
+
+/* Console */
 .console { 
   width: 500px; 
   border: 3px solid #ff0000; 
@@ -41,6 +73,8 @@ body::before {
   box-shadow: 0 0 30px #ff000055, 0 0 50px #0066ff55 inset; 
   background: rgba(0,0,0,0.85);
   backdrop-filter: blur(4px);
+  animation: drop-in 1.2s ease-out, web-sway 4s ease-in-out infinite 1.2s;
+  transform-origin: top center;
 }
 
 .title { 
@@ -63,7 +97,6 @@ body::before {
   box-shadow: inset 0 0 10px #ff0000aa, inset 0 0 20px #0066ffaa;
 }
 
-/* Message colors */
 .sent {
   color: #00ffff;
   text-shadow: 0 0 6px #00ffff;
@@ -97,70 +130,69 @@ button {
   font-weight: bold; 
   cursor: pointer; 
   border-radius: 8px;
-  text-shadow: 0 0 4px #000;
   transition: all 0.2s;
 }
 button:hover { 
   box-shadow: 0 0 15px #ff0000aa, 0 0 25px #0066ffaa; 
   transform: scale(1.05);
 }
+
+/* Animations */
+@keyframes web-sway {
+  0%   { transform: rotate(0deg); }
+  25%  { transform: rotate(1.2deg); }
+  50%  { transform: rotate(0deg); }
+  75%  { transform: rotate(-1.2deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes drop-in {
+  from {
+    transform: translateY(-200px) scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
 </style>
 </head>
 
 <body>
-<div class="console">
-  <div class="title">🕷️ SPIDY RADIO ON 🎄</div>
+<div class="spidey-scene">
+  <div class="spidey">🕷️</div>
+  <div class="web-string"></div>
 
-  <div id="chat"></div>
+  <div class="console">
+    <div class="title">🕷️ SPIDY RADIO ON 🎄</div>
 
-  <div class="controls">
-    <input id="username" placeholder="Hero name…" />
-    <input id="msg" placeholder="Transmit message…" />
-    <button onclick="send()">🕸️ SEND</button>
+    <div id="chat"></div>
+
+    <div class="controls">
+      <input id="username" placeholder="Hero name…" />
+      <input id="msg" placeholder="Transmit message…" />
+      <button onclick="send()">🕸️ SEND</button>
+    </div>
   </div>
 </div>
 
 <script>
 const chat = document.getElementById("chat");
 
-const LOCAL =
-  window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1";
-
-const PORT = 10000;
-const wsUrl = LOCAL
-  ? `ws://localhost:${PORT}`
-  : `wss://${window.location.hostname}`;
-
-const ws = new WebSocket(wsUrl);
-
-ws.onmessage = e => {
-  const data = JSON.parse(e.data);
-  const time = new Date(data.time).toLocaleTimeString();
-
-  const myName =
+function send() {
+  const user =
     document.getElementById("username").value.trim() || "Anon";
+  const msg =
+    document.getElementById("msg").value.trim();
+  if (!msg) return;
 
   const line = document.createElement("div");
-  line.className = data.user === myName ? "sent" : "received";
-  line.textContent = `[${time}] ${data.user}: ${data.message}`;
+  line.className = "sent";
+  line.textContent = `[${new Date().toLocaleTimeString()}] ${user}: ${msg}`;
 
   chat.appendChild(line);
   chat.scrollTop = chat.scrollHeight;
-};
-
-function send() {
-  const username =
-    document.getElementById("username").value.trim() || "Anon";
-  const message = document.getElementById("msg").value.trim();
-  if (!message) return;
-
-  ws.send(JSON.stringify({
-    user: username,
-    message: message,
-    time: Date.now()
-  }));
-
   document.getElementById("msg").value = "";
 }
 </script>
