@@ -1,23 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>OASIS Chat – Spidey Style</title>
+<meta charset="UTF-8">
+<title>??? Spidey Radio On Chat ??</title>
+
 <style>
-body {
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+body { 
   margin: 0;
-  font-family: 'Orbitron', sans-serif;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
+  font-family: 'Orbitron', monospace; 
+  color: #fff; 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  height: 100vh; 
+  overflow: hidden; 
   position: relative;
-  overflow: hidden;
 }
 
-/* Overlay for fading backgrounds */
+/* Background overlay for smooth transitions */
 body::before {
   content: '';
   position: absolute;
@@ -29,97 +31,223 @@ body::before {
   transition: opacity 1.5s ease-in-out;
 }
 
-#messages { /* unchanged */ ... }
-#messages li { /* unchanged */ ... }
-#form { /* unchanged */ ... }
-#input { /* unchanged */ ... }
-#send { /* unchanged */ ... }
-#send:hover { /* unchanged */ ... }
-@keyframes webSling { /* unchanged */ ... }
-</style>
+/* Snowfall */
+body::after {
+  content: '? ? ? ? ?';
+  position: absolute;
+  top: -10%;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 1.5rem;
+  color: #fff;
+  animation: snow 12s linear infinite;
+  z-index: 0;
+}
 
+/* Scene */
+.spidey-scene {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1;
+}
+
+/* Spider-Man (symbolic) */
+.spidey {
+  font-size: 52px;
+  filter: drop-shadow(0 0 12px #ff0000);
+}
+
+/* Web string */
+.web-string {
+  width: 2px;
+  height: 130px;
+  background: repeating-linear-gradient(
+    to bottom,
+    #ffffff,
+    #ffffff 6px,
+    transparent 6px,
+    transparent 12px
+  );
+  transform-origin: top;
+  animation: web-sway 4s ease-in-out infinite;
+}
+
+/* Console */
+.console { 
+  width: 500px; 
+  border: 3px solid #ff0000; 
+  border-radius: 16px; 
+  padding: 16px; 
+  box-shadow: 0 0 30px #ff000055, 0 0 50px #0066ff55 inset; 
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(4px);
+  animation: drop-in 1.2s ease-out;
+  transform-origin: top center;
+}
+
+.title { 
+  text-align: center; 
+  font-size: 20px; 
+  letter-spacing: 3px; 
+  margin-bottom: 12px;
+  color: #ff0000;
+  text-shadow: 0 0 6px #ff0000, 0 0 12px #0066ff;
+}
+
+#chat { 
+  height: 280px; 
+  overflow-y: auto; 
+  background: #000; 
+  border: 1px solid #00ffff44; 
+  padding: 10px; 
+  font-size: 14px; 
+  margin-bottom: 12px;
+  box-shadow: inset 0 0 10px #ff0000aa, inset 0 0 20px #0066ffaa;
+}
+
+.sent { color: #00ffff; text-shadow: 0 0 6px #00ffff; }
+.received { color: #ff0000; }
+
+.controls { 
+  display: flex; 
+  gap: 8px; 
+}
+
+input { 
+  flex: 1; 
+  background: #020818; 
+  border: 1px solid #ff000088; 
+  color: #00ffff; 
+  padding: 10px; 
+  font-family: inherit; 
+  outline: none;
+  border-radius: 6px;
+}
+
+button { 
+  background: linear-gradient(45deg, #ff0000, #0066ff); 
+  border: none; 
+  color: #fff; 
+  padding: 10px 16px; 
+  font-weight: bold; 
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+button:hover { 
+  box-shadow: 0 0 15px #ff0000aa, 0 0 25px #0066ffaa; 
+  transform: scale(1.05);
+}
+
+/* Animations */
+@keyframes snow {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(120vh); }
+}
+@keyframes web-sway {
+  0%   { transform: rotate(0deg); }
+  25%  { transform: rotate(1.2deg); }
+  50%  { transform: rotate(0deg); }
+  75%  { transform: rotate(-1.2deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes drop-in {
+  from { transform: translateY(-200px) scale(0.9); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+</style>
+</head>
+
+<body>
+<div class="spidey-scene">
+  <div class="spidey">???</div>
+  <div class="web-string"></div>
+
+  <div class="console">
+    <div class="title">??? SPIDY RADIO ON ??</div>
+    <div id="chat"></div>
+    <div class="controls">
+      <input id="username" placeholder="Hero name…" />
+      <input id="msg" placeholder="Transmit message…" />
+      <button onclick="send()">??? SEND</button>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
 <script>
+// Superhero backgrounds
 const backgrounds = [
   "url('https://spidyradioon.is-great.net/images/guardians.jpg')",
   "url('https://spidyradioon.is-great.net/images/xmenw.jpg')",
   "url('https://spidyradioon.is-great.net/images/jl.jpg')",
   "url('https://spidyradioon.is-great.net/images/spiderman1.jpg')"
 ];
-
 let current = 0;
-const body = document.body;
+const overlay = document.body;
 
 // Initial background
-body.style.setProperty('--bg-url', backgrounds[current]);
-body.style.backgroundImage = backgrounds[current];
-body.style.opacity = 1;
+overlay.style.backgroundImage = backgrounds[current];
 
-// Function to fade background
+// Smooth transition function
 function changeBackground() {
   const next = (current + 1) % backgrounds.length;
-  
-  // Create a temporary overlay div for fade
-  const overlay = document.createElement('div');
-  overlay.style.position = 'absolute';
-  overlay.style.top = 0;
-  overlay.style.left = 0;
-  overlay.style.right = 0;
-  overlay.style.bottom = 0;
-  overlay.style.backgroundImage = backgrounds[next];
-  overlay.style.backgroundSize = 'cover';
-  overlay.style.backgroundPosition = 'center';
-  overlay.style.opacity = 0;
-  overlay.style.transition = 'opacity 1.5s ease-in-out';
-  overlay.style.zIndex = -2;
-  document.body.appendChild(overlay);
+  const fade = document.createElement('div');
+  fade.style.position = 'absolute';
+  fade.style.top = 0; fade.style.left = 0;
+  fade.style.right = 0; fade.style.bottom = 0;
+  fade.style.backgroundImage = backgrounds[next];
+  fade.style.backgroundSize = 'cover';
+  fade.style.backgroundPosition = 'center';
+  fade.style.opacity = 0;
+  fade.style.transition = 'opacity 1.5s ease-in-out';
+  fade.style.zIndex = -2;
+  document.body.appendChild(fade);
 
-  // Trigger fade
-  requestAnimationFrame(() => {
-    overlay.style.opacity = 1;
-  });
+  requestAnimationFrame(() => fade.style.opacity = 1);
 
-  // After fade, remove old overlay
   setTimeout(() => {
-    document.body.style.backgroundImage = backgrounds[next];
-    document.body.removeChild(overlay);
+    overlay.style.backgroundImage = backgrounds[next];
+    document.body.removeChild(fade);
     current = next;
   }, 1500);
 }
-
-// Change every 8 seconds
 setInterval(changeBackground, 8000);
+
+// Live chat via Socket.IO
+const chat = document.getElementById("chat");
+const socket = io();
+
+socket.on('chat message', ({user, msg, time}) => {
+  const line = document.createElement("div");
+  line.className = "received";
+  line.textContent = `[${time}] ${user}: ${msg}`;
+  chat.appendChild(line);
+  chat.scrollTop = chat.scrollHeight;
+});
+
+function send() {
+  const user = document.getElementById("username").value.trim() || "Anon";
+  const msg = document.getElementById("msg").value.trim();
+  if (!msg) return;
+
+  const time = new Date().toLocaleTimeString();
+
+  // Local display
+  const line = document.createElement("div");
+  line.className = "sent";
+  line.textContent = `[${time}] ${user}: ${msg}`;
+  chat.appendChild(line);
+  chat.scrollTop = chat.scrollHeight;
+
+  // Emit to server
+  socket.emit('chat message', {user, msg, time});
+
+  document.getElementById("msg").value = "";
+}
 </script>
-
-
-</head>
-<body>
-  <ul id="messages"></ul>
-  <form id="form">
-    <input id="input" autocomplete="off" placeholder="Shoot your message!" />
-    <button id="send">Send</button>
-  </form>
-
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    const socket = io();
-    const form = document.getElementById('form');
-    const input = document.getElementById('input');
-    const messages = document.getElementById('messages');
-
-    socket.on('chat message', function(msg) {
-      const li = document.createElement('li');
-      li.textContent = msg;
-      messages.appendChild(li);
-      messages.scrollTop = messages.scrollHeight;
-    });
-
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      if (input.value) {
-        socket.emit('chat message', input.value);
-        input.value = '';
-      }
-    });
-  </script>
 </body>
 </html>
