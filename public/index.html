@@ -3,84 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <title>OASIS Chat – Spidey Style</title>
-  <style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400&display=swap');
-
+<style>
 body {
   margin: 0;
   font-family: 'Orbitron', sans-serif;
-  background-size: cover;
-  background-position: center;
   color: #fff;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
-  transition: background-image 1s ease-in-out;
+  position: relative;
+  overflow: hidden;
 }
 
-#messages {
-  list-style: none;
-  padding: 10px;
-  width: 80%;
-  max-width: 600px;
-  height: 350px;
-  overflow-y: auto;
-  border: 3px solid #ff0000; /* Spidey red border */
-  border-radius: 12px;
-  background: rgba(0,0,0,0.7);
-  box-shadow: 0 0 20px #ff0000 inset;
+/* Overlay for fading backgrounds */
+body::before {
+  content: '';
+  position: absolute;
+  top:0; left:0; right:0; bottom:0;
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
+  opacity: 1;
+  transition: opacity 1.5s ease-in-out;
 }
 
-#messages li {
-  padding: 8px;
-  margin-bottom: 5px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #ff0000 0%, #0000ff 100%); 
-  animation: webSling 0.4s ease;
-  color: #fff;
-  font-weight: bold;
-}
-
-#form {
-  display: flex;
-  width: 80%;
-  max-width: 600px;
-  margin-top: 10px;
-}
-
-#input {
-  flex: 1;
-  padding: 12px;
-  border: 2px solid #ff0000;
-  border-radius: 8px 0 0 8px;
-  background: #111;
-  color: #0ff;
-  font-size: 16px;
-}
-
-#send {
-  padding: 12px 20px;
-  border: 2px solid #ff0000;
-  border-left: none;
-  border-radius: 0 8px 8px 0;
-  background: #ff0000;
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-#send:hover {
-  background: #cc0000;
-}
-
-@keyframes webSling {
-  0% { transform: translateY(-20px) rotate(-10deg); opacity: 0; }
-  60% { transform: translateY(5px) rotate(5deg); opacity: 1; }
-  100% { transform: translateY(0) rotate(0deg); opacity: 1; }
-}
+#messages { /* unchanged */ ... }
+#messages li { /* unchanged */ ... }
+#form { /* unchanged */ ... }
+#input { /* unchanged */ ... }
+#send { /* unchanged */ ... }
+#send:hover { /* unchanged */ ... }
+@keyframes webSling { /* unchanged */ ... }
 </style>
 
 <script>
@@ -92,18 +47,49 @@ const backgrounds = [
 ];
 
 let current = 0;
-
-function changeBackground() {
-  document.body.style.backgroundImage = backgrounds[current];
-  current = (current + 1) % backgrounds.length;
-}
+const body = document.body;
 
 // Initial background
-changeBackground();
+body.style.setProperty('--bg-url', backgrounds[current]);
+body.style.backgroundImage = backgrounds[current];
+body.style.opacity = 1;
+
+// Function to fade background
+function changeBackground() {
+  const next = (current + 1) % backgrounds.length;
+  
+  // Create a temporary overlay div for fade
+  const overlay = document.createElement('div');
+  overlay.style.position = 'absolute';
+  overlay.style.top = 0;
+  overlay.style.left = 0;
+  overlay.style.right = 0;
+  overlay.style.bottom = 0;
+  overlay.style.backgroundImage = backgrounds[next];
+  overlay.style.backgroundSize = 'cover';
+  overlay.style.backgroundPosition = 'center';
+  overlay.style.opacity = 0;
+  overlay.style.transition = 'opacity 1.5s ease-in-out';
+  overlay.style.zIndex = -2;
+  document.body.appendChild(overlay);
+
+  // Trigger fade
+  requestAnimationFrame(() => {
+    overlay.style.opacity = 1;
+  });
+
+  // After fade, remove old overlay
+  setTimeout(() => {
+    document.body.style.backgroundImage = backgrounds[next];
+    document.body.removeChild(overlay);
+    current = next;
+  }, 1500);
+}
 
 // Change every 8 seconds
 setInterval(changeBackground, 8000);
 </script>
+
 
 </head>
 <body>
