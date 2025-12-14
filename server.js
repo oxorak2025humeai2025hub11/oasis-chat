@@ -1,43 +1,49 @@
 // server.js
-const express = require("express");
-const http = require("http");
-const path = require("path");
-const WebSocket = require("ws");
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const path = require('path');
 
 const app = express();
 const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
 
-// Serve static files from 'public' folder
-app.use(express.static(path.join(__dirname, "public")));
+// Use Socket.IO for real-time chat
+const io = new Server(server, {
+  cors: {
+    origin: "*", // You can restrict to your domain later
+    methods: ["GET", "POST"]
+  }
+});
 
-// Handle WebSocket connections
-wss.on("connection", ws => {
-  console.log("New client connected");
+// Use Render's PORT environment variable, fallback to 10000 locally
+const PORT = process.env.PORT || 10000;
 
-  ws.on("message", message => {
-    try {
-      const data = JSON.parse(message); // { user, message }
-      const msg = { ...data, time: new Date() };
+// Serve static files from 'public' folder (your index.html, CSS, JS)
+app.use(express.static(path.join(__dirname, 'public')));
 
-      // Broadcast message to all connected clients
-      wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify(msg));
-        }
-      });
-    } catch (err) {
-      console.error("Invalid message", err);
-    }
+// Optional: simple route to verify server is running
+app.get('/ping', (req, res) => {
+  res.send('OASIS Chat server is alive!');
+});
+
+// Socket.IO chat handling
+io.on('connection', (socket) => {
+  console.log('Client connected:', socket.id);
+
+  // Listen for chat messages from clients
+  socket.on('chat message', (msg) => {
+    console.log('Message received:', msg);
+    // Broadcast message to all connected clients
+    io.emit('chat message', msg);
   });
 
-  ws.on("close", () => {
-    console.log("Client disconnected");
+  // Log when a client disconnects
+  socket.on('disconnect', () => {
+    console.log('Client disconnected:', socket.id);
   });
 });
 
-// Use PORT from environment (for Render), default to 10000
-const PORT = process.env.PORT || 10000;
+// Start the server
 server.listen(PORT, () => {
   console.log(`OASIS Chat server running on port ${PORT}`);
 });
