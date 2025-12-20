@@ -18,7 +18,7 @@ body {
   overflow: hidden;
 }
 
-/* Spidey floating above the console */
+/* Spidey floating */
 .spidey-scene {
   position: absolute;
   top: 10px;
@@ -45,7 +45,7 @@ body {
   animation: sway 4s ease-in-out infinite;
 }
 
-/* FULLSCREEN CONSOLE */
+/* FULLSCREEN console */
 .console {
   position: absolute;
   top: 0;
@@ -60,17 +60,17 @@ body {
   flex-direction: column;
 }
 
-/* Header title */
+/* Title now appears under hero name */
 .title {
   text-align: center;
   color: #ff0000;
   letter-spacing: 3px;
-  margin-bottom: 16px;
+  margin: 12px 0 12px 0;
   font-size: 32px;
   text-shadow: 0 0 10px red;
 }
 
-/* CHAT AREA expands to fill screen */
+/* Chat grows to fill space */
 #chat {
   flex: 1;
   overflow-y: auto;
@@ -82,14 +82,15 @@ body {
   margin-bottom: 10px;
 }
 
-/* Message colors */
+/* Colors */
 .sent { color: #00ffff; }
 .received { color: #ff4444; }
 
-/* Input controls */
+/* Input rows */
 .controls {
   display: flex;
   gap: 8px;
+  margin-bottom: 8px;
 }
 
 input {
@@ -119,7 +120,7 @@ button:hover {
   box-shadow: 0 0 20px red;
 }
 
-/* Spidey sway animation */
+/* Sway animation */
 @keyframes sway {
   0% { transform: rotate(0deg); }
   25% { transform: rotate(1deg); }
@@ -132,22 +133,31 @@ button:hover {
 
 <body>
 
-<!-- Spidey floating -->
+<!-- Spidey dangling above -->
 <div class="spidey-scene">
   <div class="spidey">🕷️</div>
   <div class="web-string"></div>
 </div>
 
-<!-- FULLSCREEN CHAT CONSOLE -->
 <div class="console">
-  <div class="title">SPIDY RADIO ON CHAT</div>
-  <div id="chat"></div>
 
+  <!-- Hero Name FIRST -->
   <div class="controls">
     <input id="username" placeholder="Hero name">
+  </div>
+
+  <!-- Title moved BELOW Hero Name -->
+  <div class="title">SPIDY RADIO ON CHAT</div>
+
+  <!-- Chat window -->
+  <div id="chat"></div>
+
+  <!-- Message input -->
+  <div class="controls">
     <input id="msg" placeholder="Transmit message">
     <button onclick="send()">SEND</button>
   </div>
+
 </div>
 
 <audio id="ping" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
@@ -155,7 +165,7 @@ button:hover {
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
-/* Rotating background */
+/* Background rotation */
 const backgrounds = [
   "url('https://spidyradioon.is-great.net/images/rp1 (3).jpg')",
   "url('https://spidyradioon.is-great.net/images/jl.jpg')",
@@ -175,7 +185,7 @@ const ping = document.getElementById("ping");
 const originalTitle = document.title;
 let titleFlash = null;
 
-/* Notification permissions */
+/* Notification perms */
 if ("Notification" in window && Notification.permission !== "granted") {
   Notification.requestPermission();
 }
@@ -217,7 +227,7 @@ function typeLine(element, text) {
   }, 20);
 }
 
-/* Receive message */
+/* Receiving a message */
 socket.on("chat message", ({user, msg, time}) => {
   const line = document.createElement("div");
   line.className = "received";
@@ -234,7 +244,7 @@ socket.on("chat message", ({user, msg, time}) => {
   }
 });
 
-/* Send message */
+/* Sending a message */
 function send() {
   const user = document.getElementById("username").value || "Anon";
   const msgInput = document.getElementById("msg");
