@@ -1,143 +1,90 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>🕷️ Spidy Radio On Chat</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+<title>Spidy Radio</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: 'Orbitron', monospace;
-  color: #fff;
-  height: 100vh;
-  width: 100vw;
-  background-size: cover;
-  background-position: center;
-  overflow: hidden;
-}
+  body {
+    margin: 0;
+    padding: 0;
+    background: #000;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
-/* Spidey floating */
-.spidey-scene {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  text-align: center;
-}
+  .console {
+    width: 90%;
+    max-width: 600px;
+    background: rgba(20, 20, 20, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #ff0000;
+    box-shadow: 0 0 20px red;
+  }
 
-.spidey {
-  font-size: 52px;
-  filter: drop-shadow(0 0 12px red);
-}
+  .console input {
+    width: 100%;
+    padding: 12px;
+    font-size: 18px;
+    border-radius: 6px;
+    border: 2px solid #fff;
+    background: #111;
+    color: #fff;
+    box-sizing: border-box;
+  }
 
-.web-string {
-  width: 2px;
-  height: 120px;
-  background: repeating-linear-gradient(
-    to bottom,
-    #fff 0px,
-    #fff 6px,
-    transparent 6px,
-    transparent 12px
-  );
-  animation: sway 4s ease-in-out infinite;
-}
+  .controls {
+    margin-bottom: 15px;
+  }
 
-/* FULLSCREEN console */
-.console {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  /* Message row: input + send button */
+  .controls.message-row {
+    display: flex;
+    gap: 10px;
+  }
 
-  background: rgba(0,0,0,0.78);
-  padding: 20px;
+  .controls.message-row input {
+    flex: 1;
+  }
 
-  display: flex;
-  flex-direction: column;
-}
+  /* Smaller send button */
+  .controls.message-row button {
+    padding: 8px 14px;
+    font-size: 16px;
+    border-radius: 6px;
+    background: #ff4444;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+  }
 
-/* Title now appears after both inputs */
-.title {
-  text-align: center;
-  color: #ff0000;
-  letter-spacing: 3px;
-  margin: 12px 0;
-  font-size: 32px;
-  text-shadow: 0 0 10px red;
-}
+  .title {
+    text-align: center;
+    font-size: 24px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    color: #ff4444;
+    text-shadow: 0 0 10px red;
+  }
 
-/* Chat grows to fill space */
-#chat {
-  flex: 1;
-  overflow-y: auto;
+  #chat {
+    height: 250px;
+    overflow-y: auto;
+    padding: 10px;
+    background: #111;
+    border: 2px solid #333;
+    border-radius: 6px;
+  }
 
-  background: #000;
-  border: 1px solid #00ffff44;
-  font-size: 16px;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-/* Colors */
-.sent { color: #00ffff; }
-.received { color: #ff4444; }
-
-/* Input rows */
-.controls {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-input {
-  flex: 1;
-  padding: 12px;
-  background: #020818;
-  border: 1px solid #ff000088;
-  color: #00ffff;
-  border-radius: 6px;
-  font-family: inherit;
-  font-size: 16px;
-}
-
-button {
-  padding: 12px 16px;
-  background: linear-gradient(45deg, #ff0000, #0066ff);
-  border: none;
-  color: white;
-  font-weight: bold;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 20px red;
-}
-
-/* Sway animation */
-@keyframes sway {
-  0% { transform: rotate(0deg); }
-  25% { transform: rotate(1deg); }
-  50% { transform: rotate(0deg); }
-  75% { transform: rotate(-1deg); }
-  100% { transform: rotate(0deg); }
-}
 </style>
+
 </head>
-
 <body>
-
-<!-- Spidey dangling above -->
-<div class="spidey-scene">
-  <div class="spidey">🕷️</div>
-  <div class="web-string"></div>
-</div>
 
 <div class="console">
 
@@ -146,122 +93,36 @@ button:hover {
     <input id="username" placeholder="Hero name">
   </div>
 
-  <!-- TRANSMIT MESSAGE -->
-  <div class="controls">
+  <!-- MESSAGE + SEND BUTTON -->
+  <div class="controls message-row">
     <input id="msg" placeholder="Transmit message">
     <button onclick="send()">SEND</button>
   </div>
 
-  <!-- TITLE NOW BELOW BOTH INPUT LINES -->
+  <!-- TITLE BELOW INPUTS -->
   <div class="title">SPIDY RADIO ON CHAT</div>
 
-  <!-- CHAT WINDOW -->
+  <!-- CHAT BOX -->
   <div id="chat"></div>
 
 </div>
 
-<audio id="ping" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
-
-<script src="/socket.io/socket.io.js"></script>
-
 <script>
-/* Background rotation */
-const backgrounds = [
-  "url('https://spidyradioon.is-great.net/images/rp1 (3).jpg')",
-  "url('https://spidyradioon.is-great.net/images/jl.jpg')",
-  "url('https://spidyradioon.is-great.net/images/spiderman1.jpg')"
-];
-let bg = 0;
-document.body.style.backgroundImage = backgrounds[0];
-setInterval(() => {
-  bg = (bg + 1) % backgrounds.length;
-  document.body.style.backgroundImage = backgrounds[bg];
-}, 8000);
+  function send() {
+    let user = document.getElementById("username").value.trim();
+    let message = document.getElementById("msg").value.trim();
+    let chat = document.getElementById("chat");
 
-/* Socket */
-const socket = io();
-const chat = document.getElementById("chat");
-const ping = document.getElementById("ping");
-const originalTitle = document.title;
-let titleFlash = null;
+    if (!user || !message) return;
 
-/* Notification perms */
-if ("Notification" in window && Notification.permission !== "granted") {
-  Notification.requestPermission();
-}
+    let line = document.createElement("div");
+    line.textContent = user + ": " + message;
 
-function notify(user, msg) {
-  if (Notification.permission === "granted") {
-    const n = new Notification("🕷️ Spidy Radio On", {
-      body: `${user}: ${msg}`,
-      icon: "https://cdn-icons-png.flaticon.com/512/188/188987.png"
-    });
-    n.onclick = () => window.focus();
+    chat.appendChild(line);
+    chat.scrollTop = chat.scrollHeight;
+
+    document.getElementById("msg").value = "";
   }
-}
-
-function flashTitle() {
-  if (titleFlash) return;
-  titleFlash = setInterval(() => {
-    document.title =
-      document.title === originalTitle
-        ? "🕷️ NEW MESSAGE!"
-        : originalTitle;
-  }, 1000);
-}
-
-window.addEventListener("focus", () => {
-  clearInterval(titleFlash);
-  titleFlash = null;
-  document.title = originalTitle;
-});
-
-/* Typewriter effect */
-function typeLine(element, text) {
-  let i = 0;
-  element.textContent = "";
-  const interval = setInterval(() => {
-    element.textContent += text[i];
-    i++;
-    if (i >= text.length) clearInterval(interval);
-  }, 20);
-}
-
-/* Receiving a message */
-socket.on("chat message", ({user, msg, time}) => {
-  const line = document.createElement("div");
-  line.className = "received";
-  chat.appendChild(line);
-  typeLine(line, `[${time}] ${user}: ${msg}`);
-  chat.scrollTop = chat.scrollHeight;
-
-  ping.currentTime = 0;
-  ping.play().catch(()=>{});
-
-  if (document.hidden) {
-    flashTitle();
-    notify(user, msg);
-  }
-});
-
-/* Sending a message */
-function send() {
-  const user = document.getElementById("username").value || "Anon";
-  const msgInput = document.getElementById("msg");
-  const msg = msgInput.value.trim();
-  if (!msg) return;
-
-  const time = new Date().toLocaleTimeString();
-
-  const line = document.createElement("div");
-  line.className = "sent";
-  chat.appendChild(line);
-  typeLine(line, `[${time}] ${user}: ${msg}`);
-  chat.scrollTop = chat.scrollHeight;
-
-  socket.emit("chat message", { user, msg, time });
-  msgInput.value = "";
-}
 </script>
 
 </body>
