@@ -11,20 +11,20 @@ body {
   margin: 0;
   font-family: 'Orbitron', monospace;
   color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   height: 100vh;
-  overflow: hidden;
+  width: 100vw;
   background-size: cover;
   background-position: center;
+  overflow: hidden;
 }
 
-/* Scene */
+/* Spidey floating above the console */
 .spidey-scene {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
 }
 
 .spidey {
@@ -45,36 +45,48 @@ body {
   animation: sway 4s ease-in-out infinite;
 }
 
+/* FULLSCREEN CONSOLE */
 .console {
-  width: 520px;
-  background: rgba(0,0,0,0.85);
-  border: 3px solid #ff0000;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 0 30px #ff000055, inset 0 0 20px #0066ff55;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+
+  background: rgba(0,0,0,0.78);
+  padding: 20px;
+
+  display: flex;
+  flex-direction: column;
 }
 
+/* Header title */
 .title {
   text-align: center;
   color: #ff0000;
   letter-spacing: 3px;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
+  font-size: 32px;
   text-shadow: 0 0 10px red;
 }
 
+/* CHAT AREA expands to fill screen */
 #chat {
-  height: 280px;
+  flex: 1;
   overflow-y: auto;
+
   background: #000;
   border: 1px solid #00ffff44;
+  font-size: 16px;
   padding: 10px;
   margin-bottom: 10px;
-  font-size: 14px;
 }
 
+/* Message colors */
 .sent { color: #00ffff; }
 .received { color: #ff4444; }
 
+/* Input controls */
 .controls {
   display: flex;
   gap: 8px;
@@ -82,22 +94,24 @@ body {
 
 input {
   flex: 1;
-  padding: 10px;
+  padding: 12px;
   background: #020818;
   border: 1px solid #ff000088;
   color: #00ffff;
   border-radius: 6px;
   font-family: inherit;
+  font-size: 16px;
 }
 
 button {
-  padding: 10px 16px;
+  padding: 12px 16px;
   background: linear-gradient(45deg, #ff0000, #0066ff);
   border: none;
   color: white;
   font-weight: bold;
   border-radius: 8px;
   cursor: pointer;
+  font-size: 16px;
 }
 
 button:hover {
@@ -105,6 +119,7 @@ button:hover {
   box-shadow: 0 0 20px red;
 }
 
+/* Spidey sway animation */
 @keyframes sway {
   0% { transform: rotate(0deg); }
   25% { transform: rotate(1deg); }
@@ -117,27 +132,30 @@ button:hover {
 
 <body>
 
+<!-- Spidey floating -->
 <div class="spidey-scene">
   <div class="spidey">🕷️</div>
   <div class="web-string"></div>
+</div>
 
-  <div class="console">
-    <div class="title">SPIDY RADIO ON CHAT</div>
-    <div id="chat"></div>
+<!-- FULLSCREEN CHAT CONSOLE -->
+<div class="console">
+  <div class="title">SPIDY RADIO ON CHAT</div>
+  <div id="chat"></div>
 
-    <div class="controls">
-      <input id="username" placeholder="Hero name">
-      <input id="msg" placeholder="Transmit message">
-      <button onclick="send()">SEND</button>
-    </div>
+  <div class="controls">
+    <input id="username" placeholder="Hero name">
+    <input id="msg" placeholder="Transmit message">
+    <button onclick="send()">SEND</button>
   </div>
 </div>
 
 <audio id="ping" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
 
 <script src="/socket.io/socket.io.js"></script>
+
 <script>
-/* Background rotation */
+/* Rotating background */
 const backgrounds = [
   "url('https://spidyradioon.is-great.net/images/rp1 (3).jpg')",
   "url('https://spidyradioon.is-great.net/images/jl.jpg')",
@@ -150,14 +168,14 @@ setInterval(() => {
   document.body.style.backgroundImage = backgrounds[bg];
 }, 8000);
 
-/* Socket.IO */
+/* Socket */
 const socket = io();
 const chat = document.getElementById("chat");
 const ping = document.getElementById("ping");
 const originalTitle = document.title;
 let titleFlash = null;
 
-/* Notifications */
+/* Notification permissions */
 if ("Notification" in window && Notification.permission !== "granted") {
   Notification.requestPermission();
 }
@@ -188,7 +206,7 @@ window.addEventListener("focus", () => {
   document.title = originalTitle;
 });
 
-/* Typing effect */
+/* Typewriter effect */
 function typeLine(element, text) {
   let i = 0;
   element.textContent = "";
@@ -199,7 +217,7 @@ function typeLine(element, text) {
   }, 20);
 }
 
-/* Receive */
+/* Receive message */
 socket.on("chat message", ({user, msg, time}) => {
   const line = document.createElement("div");
   line.className = "received";
@@ -216,7 +234,7 @@ socket.on("chat message", ({user, msg, time}) => {
   }
 });
 
-/* Send */
+/* Send message */
 function send() {
   const user = document.getElementById("username").value || "Anon";
   const msgInput = document.getElementById("msg");
