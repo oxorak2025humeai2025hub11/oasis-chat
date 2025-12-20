@@ -60,12 +60,12 @@ body {
   flex-direction: column;
 }
 
-/* Title now appears under hero name */
+/* Title now appears after both inputs */
 .title {
   text-align: center;
   color: #ff0000;
   letter-spacing: 3px;
-  margin: 12px 0 12px 0;
+  margin: 12px 0;
   font-size: 32px;
   text-shadow: 0 0 10px red;
 }
@@ -141,22 +141,22 @@ button:hover {
 
 <div class="console">
 
-  <!-- Hero Name FIRST -->
+  <!-- HERO NAME -->
   <div class="controls">
     <input id="username" placeholder="Hero name">
   </div>
 
-  <!-- Title moved BELOW Hero Name -->
-  <div class="title">SPIDY RADIO ON CHAT</div>
-
-  <!-- Chat window -->
-  <div id="chat"></div>
-
-  <!-- Message input -->
+  <!-- TRANSMIT MESSAGE -->
   <div class="controls">
     <input id="msg" placeholder="Transmit message">
     <button onclick="send()">SEND</button>
   </div>
+
+  <!-- TITLE NOW BELOW BOTH INPUT LINES -->
+  <div class="title">SPIDY RADIO ON CHAT</div>
+
+  <!-- CHAT WINDOW -->
+  <div id="chat"></div>
 
 </div>
 
