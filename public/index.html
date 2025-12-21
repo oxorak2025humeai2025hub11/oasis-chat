@@ -17,8 +17,8 @@ body {
 }
 
 .console {
-  width: 96%;
-  max-width: 900px;
+  width: 92%;
+  max-width: 780px;
   background: rgba(10,10,10,0.95);
   padding: 20px;
   border-radius: 14px;
@@ -28,7 +28,7 @@ body {
 
 .title {
   text-align: center;
-  font-size: 28px;
+  font-size: 24px;
   color: #ff3333;
   text-shadow: 0 0 15px red;
   margin-bottom: 10px;
@@ -69,7 +69,7 @@ button:hover {
 }
 
 #chat {
-  height: 280px;
+  height: 230px;
   overflow-y: auto;
   background: #080808;
   border: 2px solid #222;
@@ -122,7 +122,7 @@ button:hover {
     <button onclick="unlock()">🔓 UNLOCK</button>
   </div>
 
-  <div id="lockStatus">🔒 Radio is locked</div>
+  <div id="lockStatus">🔒 Radio is locked?</div>
 
   <div class="controls message-row">
     <input id="msg" placeholder="Transmit message">
@@ -172,7 +172,7 @@ let isLocked = true;
 lockRef.on("value", snap => {
   isLocked = snap.val();
   document.getElementById("lockStatus").textContent =
-    isLocked ? "🔒 Radio is locked" : "🟢 Radio unlocked";
+    isLocked ? "🔒 Radio is locked?" : "🟢 Radio unlocked";
   document.getElementById("title").textContent =
     isLocked ? "🕷️ SPIDY RADIO 🔒" : "🕷️ SPIDY RADIO 🔓";
 });
@@ -194,7 +194,7 @@ username.oninput = () => localStorage.setItem("spidyUser", username.value);
 
 /* 💬 SEND TEXT */
 function send() {
-  if (isLocked) return alert("🔒 Radio locked");
+  if (isLocked) return alert("🔒 Radio locked?");
   if (!msg.value.trim()) return;
 
   chatRef.push({
@@ -237,7 +237,7 @@ navigator.mediaDevices.getUserMedia({ audio: true })
   .catch(() => alert("Microphone blocked"));
 
 talkBtn.onmousedown = talkBtn.ontouchstart = () => {
-  if (isLocked) return alert("🔒 Radio locked");
+  if (isLocked) return alert("🔒 Radio locked?");
   chunks = [];
   recorder = new MediaRecorder(stream);
   recorder.start();
