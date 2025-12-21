@@ -2,8 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>🕷️ Spidy Radio</title>
-
+<title>🕷️ Spidy Radio Messenger</title>
 <style>
 body {
   margin: 0;
@@ -53,8 +52,7 @@ body {
   gap: 8px;
 }
 
-.message-row button,
-button {
+.message-row button {
   padding: 10px 16px;
   font-size: 15px;
   border-radius: 6px;
@@ -86,172 +84,52 @@ button:hover {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
-#lockStatus {
-  text-align: center;
-  font-weight: bold;
-  margin-bottom: 6px;
-  text-shadow: 0 0 10px red;
-}
-
-#talkBtn {
-  margin-top: 10px;
-  width: 100%;
-  border-radius: 50px;
-  font-size: 16px;
-}
-
-.share {
-  margin-top: 8px;
-  text-align: center;
-}
 </style>
 </head>
 
 <body>
 <div class="console">
 
-  <div class="title" id="title">🕷️ SPIDY RADIO 🔓</div>
+  <div class="title">🕷️ Spidy Messenger</div>
 
   <div class="controls">
     <input id="username" placeholder="Hero name">
   </div>
 
-  <div id="lockStatus">🔒 Radio is locked?</div>
-
   <div class="controls message-row">
-    <input id="msg" placeholder="Transmit message">
+    <input id="msg" placeholder="Type your message">
     <button onclick="send()">SEND</button>
   </div>
 
   <div id="chat"></div>
 
-  <button id="talkBtn">🎙️ HOLD TO TALK</button>
-
-  <div class="share">
-    <button onclick="share()">🔗 Share Radio Link</button>
-  </div>
-
 </div>
 
-<!-- 🎧 SOUNDS -->
-<audio id="sendSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_1b5d5c7a70.mp3"></audio>
-<audio id="receiveSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_2c6f39bbcc.mp3"></audio>
-
-<!-- 🔥 FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
 <script>
-/* 🔥 REPLACE WITH YOUR FIREBASE CONFIG */
-const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR_DOMAIN",
-  databaseURL: "YOUR_DB_URL",
-  projectId: "YOUR_PROJECT_ID"
-};
+const chat = document.getElementById("chat");
+const usernameInput = document.getElementById("username");
+const msgInput = document.getElementById("msg");
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const chatRef = db.ref("spidyRadio/messages");
-const lockRef = db.ref("spidyRadio/lock");
-
-/* 🔓 START UNLOCKED */
-lockRef.once("value", snap => {
-  if (snap.val() === null) lockRef.set(false); // start unlocked
-});
-
-let isLocked = false; // radio is usable immediately
-
-/* 🔒 LOCK STATUS LISTENER */
-lockRef.on("value", snap => {
-  isLocked = snap.val();
-  document.getElementById("lockStatus").textContent =
-    "🔒 Radio is locked?"; // always show this style
-  document.getElementById("title").textContent =
-    isLocked ? "🕷️ SPIDY RADIO 🔒" : "🕷️ SPIDY RADIO 🔓";
-});
-
-/* 💾 USERNAME MEMORY */
-username.value = localStorage.getItem("spidyUser") || "";
-username.oninput = () => localStorage.setItem("spidyUser", username.value);
-
-/* 💬 SEND TEXT */
+/* send message */
 function send() {
-  if (!msg.value.trim()) return;
-
-  chatRef.push({
-    user: username.value || "Anon",
-    text: msg.value,
-    time: Date.now()
-  });
-
-  sendSound.play();
-  msg.value = "";
-}
-
-msg.addEventListener("keydown", e => {
-  if (e.key === "Enter") send();
-});
-
-/* 📩 RECEIVE */
-chatRef.limitToLast(100).on("child_added", snap => {
-  const d = snap.val();
-
-  if (d.audio) {
-    new Audio(d.audio).play();
-    return;
-  }
+  const user = usernameInput.value.trim() || "Anon";
+  const text = msgInput.value.trim();
+  if (!text) return;
 
   const div = document.createElement("div");
   div.className = "msg";
-  const t = new Date(d.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-  div.textContent = `[${t}] ${d.user}: ${d.text}`;
+  const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  div.textContent = `[${time}] ${user}: ${text}`;
+
   chat.appendChild(div);
   chat.scrollTop = chat.scrollHeight;
-  receiveSound.play();
-});
-
-/* 🎙️ VOICE RADIO */
-let stream, recorder, chunks = [];
-
-navigator.mediaDevices.getUserMedia({ audio: true })
-  .then(s => stream = s)
-  .catch(() => alert("Microphone blocked"));
-
-talkBtn.onmousedown = talkBtn.ontouchstart = () => {
-  chunks = [];
-  recorder = new MediaRecorder(stream);
-  recorder.start();
-  recorder.ondataavailable = e => chunks.push(e.data);
-  talkBtn.textContent = "🔴 TRANSMITTING";
-  talkBtn.style.background = "darkred";
-};
-
-talkBtn.onmouseup = talkBtn.ontouchend = () => {
-  if (!recorder) return;
-  recorder.stop();
-  talkBtn.textContent = "🎙️ HOLD TO TALK";
-  talkBtn.style.background = "red";
-
-  recorder.onstop = () => {
-    const blob = new Blob(chunks, { type: "audio/webm" });
-    const r = new FileReader();
-    r.onloadend = () => {
-      chatRef.push({
-        audio: r.result,
-        time: Date.now()
-      });
-    };
-    r.readAsDataURL(blob);
-  };
-};
-
-/* 🔗 SHARE */
-function share() {
-  navigator.clipboard.writeText(location.href);
-  alert("🕷️ Link copied!");
+  msgInput.value = "";
 }
+
+/* allow Enter key to send */
+msgInput.addEventListener("keydown", e => {
+  if (e.key === "Enter") send();
+});
 </script>
 
 </body>
