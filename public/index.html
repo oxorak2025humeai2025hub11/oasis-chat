@@ -17,32 +17,32 @@ body {
 }
 
 .console {
-  width: 92%;
-  max-width: 780px;
+  width: 88%;
+  max-width: 700px;
   background: rgba(10,10,10,0.95);
-  padding: 20px;
-  border-radius: 14px;
+  padding: 18px;
+  border-radius: 12px;
   border: 3px solid red;
-  box-shadow: 0 0 30px red;
+  box-shadow: 0 0 25px red;
 }
 
 .title {
   text-align: center;
-  font-size: 24px;
+  font-size: 22px;
   color: #ff3333;
-  text-shadow: 0 0 15px red;
-  margin-bottom: 10px;
+  text-shadow: 0 0 12px red;
+  margin-bottom: 8px;
 }
 
 .controls {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .controls input {
   width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  border-radius: 8px;
+  padding: 10px;
+  font-size: 15px;
+  border-radius: 6px;
   border: 2px solid red;
   background: #111;
   color: white;
@@ -50,14 +50,14 @@ body {
 
 .message-row {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
 .message-row button,
 button {
-  padding: 12px 18px;
-  font-size: 16px;
-  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 15px;
+  border-radius: 6px;
   background: red;
   color: white;
   border: none;
@@ -65,20 +65,20 @@ button {
 }
 
 button:hover {
-  box-shadow: 0 0 12px red;
+  box-shadow: 0 0 10px red;
 }
 
 #chat {
-  height: 230px;
+  height: 200px;
   overflow-y: auto;
   background: #080808;
   border: 2px solid #222;
   border-radius: 8px;
-  padding: 10px;
+  padding: 8px;
 }
 
 .msg {
-  margin-bottom: 6px;
+  margin-bottom: 5px;
   animation: fadeIn 0.2s ease;
 }
 
@@ -90,19 +90,19 @@ button:hover {
 #lockStatus {
   text-align: center;
   font-weight: bold;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   text-shadow: 0 0 10px red;
 }
 
 #talkBtn {
-  margin-top: 12px;
+  margin-top: 10px;
   width: 100%;
   border-radius: 50px;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .share {
-  margin-top: 10px;
+  margin-top: 8px;
   text-align: center;
 }
 </style>
@@ -115,11 +115,6 @@ button:hover {
 
   <div class="controls">
     <input id="username" placeholder="Hero name">
-  </div>
-
-  <div class="controls">
-    <input id="unlockCode" placeholder="Enter radio code">
-    <button onclick="unlock()">🔓 UNLOCK</button>
   </div>
 
   <div id="lockStatus">🔒 Radio is locked?</div>
@@ -176,17 +171,6 @@ lockRef.on("value", snap => {
   document.getElementById("title").textContent =
     isLocked ? "🕷️ SPIDY RADIO 🔒" : "🕷️ SPIDY RADIO 🔓";
 });
-
-/* 🔑 UNLOCK */
-const ROOM_CODE = "SPIDY2099";
-
-function unlock() {
-  if (unlockCode.value === ROOM_CODE) {
-    lockRef.set(false);
-  } else {
-    alert("❌ Wrong code");
-  }
-}
 
 /* 💾 USERNAME MEMORY */
 username.value = localStorage.getItem("spidyUser") || "";
