@@ -111,7 +111,7 @@ button:hover {
 <body>
 <div class="console">
 
-  <div class="title" id="title">🕷️ SPIDY RADIO 🔒</div>
+  <div class="title" id="title">🕷️ SPIDY RADIO 🔓</div>
 
   <div class="controls">
     <input id="username" placeholder="Hero name">
@@ -156,18 +156,18 @@ const db = firebase.database();
 const chatRef = db.ref("spidyRadio/messages");
 const lockRef = db.ref("spidyRadio/lock");
 
-/* 🔒 START LOCKED */
+/* 🔓 START UNLOCKED */
 lockRef.once("value", snap => {
-  if (snap.val() === null) lockRef.set(true);
+  if (snap.val() === null) lockRef.set(false); // start unlocked
 });
 
-let isLocked = true;
+let isLocked = false; // radio is usable immediately
 
 /* 🔒 LOCK STATUS LISTENER */
 lockRef.on("value", snap => {
   isLocked = snap.val();
   document.getElementById("lockStatus").textContent =
-    isLocked ? "🔒 Radio is locked?" : "🟢 Radio unlocked";
+    "🔒 Radio is locked?"; // always show this style
   document.getElementById("title").textContent =
     isLocked ? "🕷️ SPIDY RADIO 🔒" : "🕷️ SPIDY RADIO 🔓";
 });
@@ -178,7 +178,6 @@ username.oninput = () => localStorage.setItem("spidyUser", username.value);
 
 /* 💬 SEND TEXT */
 function send() {
-  if (isLocked) return alert("🔒 Radio locked?");
   if (!msg.value.trim()) return;
 
   chatRef.push({
@@ -221,7 +220,6 @@ navigator.mediaDevices.getUserMedia({ audio: true })
   .catch(() => alert("Microphone blocked"));
 
 talkBtn.onmousedown = talkBtn.ontouchstart = () => {
-  if (isLocked) return alert("🔒 Radio locked?");
   chunks = [];
   recorder = new MediaRecorder(stream);
   recorder.start();
